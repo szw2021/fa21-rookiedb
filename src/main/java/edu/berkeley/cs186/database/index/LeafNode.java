@@ -7,6 +7,7 @@ import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.databox.Type;
 import edu.berkeley.cs186.database.memory.BufferManager;
 import edu.berkeley.cs186.database.memory.Page;
+import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.RecordId;
 
 import java.nio.ByteBuffer;
@@ -114,8 +115,8 @@ class LeafNode extends BPlusNode {
     LeafNode(BPlusTreeMetadata metadata, BufferManager bufferManager, List<DataBox> keys,
              List<RecordId> rids, Optional<Long> rightSibling, LockContext treeContext) {
         this(metadata, bufferManager, bufferManager.fetchNewPage(treeContext, metadata.getPartNum()),
-             keys, rids,
-             rightSibling, treeContext);
+                keys, rids,
+                rightSibling, treeContext);
     }
 
     /**
@@ -170,7 +171,7 @@ class LeafNode extends BPlusNode {
     // See BPlusNode.bulkLoad.
     @Override
     public Optional<Pair<DataBox, Long>> bulkLoad(Iterator<Pair<DataBox, RecordId>> data,
-            float fillFactor) {
+                                                  float fillFactor) {
         // TODO(proj2): implement
 
         return Optional.empty();
@@ -372,12 +373,30 @@ class LeafNode extends BPlusNode {
      */
     public static LeafNode fromBytes(BPlusTreeMetadata metadata, BufferManager bufferManager,
                                      LockContext treeContext, long pageNum) {
-        // TODO(proj2): implement
+
         // Note: LeafNode has two constructors. To implement fromBytes be sure to
         // use the constructor that reuses an existing page instead of fetching a
         // brand new one.
+        Page page = bufferManager.fetchPage(treeContext, pageNum);
+        Buffer buf = page.getBuffer();
 
-        return null;
+        byte nodeType = buf.get();
+        assert(nodeType == (byte) 1);
+
+        List<DataBox> keys = new ArrayList<>();
+        List<RecordId> rids = new ArrayList<>();
+        Optional<Long> rightSibling = Optional.of(buf.getLong());
+
+        int n = buf.getInt();
+        for (int i = 0; i < n; i++) {
+            keys.add(DataBox.fromBytes(buf, metadata.getKeySchema()));
+
+            long page_num = buf.getLong();
+            short entry_num = buf.getShort();
+            rids.add(new RecordId(page_num, entry_num));
+        }
+
+        return new LeafNode(metadata, bufferManager, page, keys, rids, rightSibling, treeContext);
     }
 
     // Builtins ////////////////////////////////////////////////////////////////
@@ -391,9 +410,9 @@ class LeafNode extends BPlusNode {
         }
         LeafNode n = (LeafNode) o;
         return page.getPageNum() == n.page.getPageNum() &&
-               keys.equals(n.keys) &&
-               rids.equals(n.rids) &&
-               rightSibling.equals(n.rightSibling);
+                keys.equals(n.keys) &&
+                rids.equals(n.rids) &&
+                rightSibling.equals(n.rightSibling);
     }
 
     @Override
