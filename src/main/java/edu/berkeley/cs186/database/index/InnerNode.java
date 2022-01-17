@@ -92,7 +92,7 @@ class InnerNode extends BPlusNode {
     @Override
     public LeafNode getLeftmostLeaf() {
         assert(children.size() > 0);
-        // TODO(proj2): implement
+
         BPlusNode child = getChild(0);
         return child.getLeftmostLeaf();
     }
@@ -102,6 +102,31 @@ class InnerNode extends BPlusNode {
     public Optional<Pair<DataBox, Long>> put(DataBox key, RecordId rid) {
         // TODO(proj2): implement
 
+        int n = numLessThanEqual(key, keys);
+        BPlusNode child = getChild(n);
+        int d = metadata.getOrder();
+        Optional<Pair<DataBox, Long>> res = child.put(key, rid);
+        if (res.isPresent()) {
+            DataBox newKey = res.get().getFirst();
+            Long pageNum = res.get().getSecond();
+            keys.add(n, newKey);
+            children.add(n + 1, pageNum); //todo
+            if (keys.size() > 2 * d) {
+                keys.remove(d);
+                List<DataBox> newKeys = new ArrayList<>();
+                List<Long> newChildren = new ArrayList<>();
+                for (int i = 0; i < d; i++) {
+                    newKeys.add(keys.remove(d));
+                }
+                for (int i = 0; i <= d; i++) {
+                    newChildren.add(children.remove(d + 1));
+                }
+                InnerNode node = new InnerNode(metadata, bufferManager, newKeys, newChildren, treeContext);
+                sync();
+                return Optional.of(new Pair<>(newKeys.get(0), node.getPage().getPageNum()));
+            }
+        }
+        sync();
         return Optional.empty();
     }
 

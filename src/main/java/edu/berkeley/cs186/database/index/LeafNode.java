@@ -161,6 +161,30 @@ class LeafNode extends BPlusNode {
     public Optional<Pair<DataBox, Long>> put(DataBox key, RecordId rid) {
         // TODO(proj2): implement
 
+        if (keys.contains(key)) {
+            throw new BPlusTreeException("can not put same key");
+        }
+        int d = metadata.getOrder();
+        int n = InnerNode.numLessThan(key, keys);
+        keys.add(n, key);
+        rids.add(n, rid);
+        if (keys.size() > 2 * d) {
+
+            List<DataBox> newKeys = new ArrayList<>();
+            List<RecordId> newRids = new ArrayList<>();
+            for (int i = 0; i <= d; i++) {
+                newKeys.add(keys.remove(d));
+                newRids.add(rids.remove(d));
+            }
+
+            LeafNode node = new LeafNode(metadata, bufferManager, newKeys, newRids, rightSibling, treeContext);
+            long newPageNum = node.getPage().getPageNum();
+            this.rightSibling = Optional.of(newPageNum);
+            sync();
+            return  Optional.of(new Pair<>(newKeys.get(0), newPageNum));
+
+        }
+        sync();
         return Optional.empty();
     }
 
