@@ -159,7 +159,6 @@ class LeafNode extends BPlusNode {
     // See BPlusNode.put.
     @Override
     public Optional<Pair<DataBox, Long>> put(DataBox key, RecordId rid) {
-        // TODO(proj2): implement
 
         if (keys.contains(key)) {
             throw new BPlusTreeException("can not put same key");
@@ -202,6 +201,12 @@ class LeafNode extends BPlusNode {
     public void remove(DataBox key) {
         // TODO(proj2): implement
 
+        int index = keys.indexOf(key);
+        if (index != -1) {
+            keys.remove(index);
+            rids.remove(index);
+            sync();
+        }
         return;
     }
 
@@ -405,7 +410,13 @@ class LeafNode extends BPlusNode {
 
         List<DataBox> keys = new ArrayList<>();
         List<RecordId> rids = new ArrayList<>();
-        Optional<Long> rightSibling = Optional.of(buf.getLong());
+        long right = buf.getLong();
+        Optional<Long> rightSibling;
+        if (right != -1) {
+             rightSibling = Optional.of(right);
+        } else {
+            rightSibling = Optional.empty();
+        }
 
         int n = buf.getInt();
         for (int i = 0; i < n; i++) {

@@ -100,7 +100,6 @@ class InnerNode extends BPlusNode {
     // See BPlusNode.put.
     @Override
     public Optional<Pair<DataBox, Long>> put(DataBox key, RecordId rid) {
-        // TODO(proj2): implement
 
         int n = numLessThanEqual(key, keys);
         BPlusNode child = getChild(n);
@@ -108,11 +107,12 @@ class InnerNode extends BPlusNode {
         Optional<Pair<DataBox, Long>> res = child.put(key, rid);
         if (res.isPresent()) {
             DataBox newKey = res.get().getFirst();
+            n = numLessThanEqual(newKey, keys);
             Long pageNum = res.get().getSecond();
             keys.add(n, newKey);
             children.add(n + 1, pageNum); //todo
             if (keys.size() > 2 * d) {
-                keys.remove(d);
+                DataBox t = keys.remove(d);
                 List<DataBox> newKeys = new ArrayList<>();
                 List<Long> newChildren = new ArrayList<>();
                 for (int i = 0; i < d; i++) {
@@ -123,7 +123,7 @@ class InnerNode extends BPlusNode {
                 }
                 InnerNode node = new InnerNode(metadata, bufferManager, newKeys, newChildren, treeContext);
                 sync();
-                return Optional.of(new Pair<>(newKeys.get(0), node.getPage().getPageNum()));
+                return Optional.of(new Pair<>(t, node.getPage().getPageNum()));
             }
         }
         sync();
@@ -143,7 +143,8 @@ class InnerNode extends BPlusNode {
     @Override
     public void remove(DataBox key) {
         // TODO(proj2): implement
-
+        LeafNode leafNode = get(key);
+        leafNode.remove(key);
         return;
     }
 
