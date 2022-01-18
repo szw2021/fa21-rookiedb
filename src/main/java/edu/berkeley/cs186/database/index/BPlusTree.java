@@ -200,7 +200,6 @@ public class BPlusTree {
         // TODO(proj4_integration): Update the following line
         LockUtil.ensureSufficientLockHeld(lockContext, LockType.NL);
 
-        // TODO(proj2): Return a BPlusTreeIterator.
         return new BPlusTreeIterator(root, Optional.empty());
     }
 
@@ -232,7 +231,6 @@ public class BPlusTree {
         // TODO(proj4_integration): Update the following line
         LockUtil.ensureSufficientLockHeld(lockContext, LockType.NL);
 
-        // TODO(proj2): Return a BPlusTreeIterator.
         return new BPlusTreeIterator(root.get(key), Optional.of(key));
     }
 
@@ -288,7 +286,6 @@ public class BPlusTree {
         // TODO(proj4_integration): Update the following line
         LockUtil.ensureSufficientLockHeld(lockContext, LockType.NL);
 
-        // TODO(proj2): implement
         // Note: You should NOT update the root variable directly.
         // Use the provided updateRoot() helper method to change
         // the tree's root if the old root splits.
@@ -323,7 +320,6 @@ public class BPlusTree {
         // TODO(proj4_integration): Update the following line
         LockUtil.ensureSufficientLockHeld(lockContext, LockType.NL);
 
-        // TODO(proj2): implement
         root.remove(key);
 
         return;
@@ -436,58 +432,16 @@ public class BPlusTree {
         }
     }
 
-    // Iterator ////////////////////////////////////////////////////////////////
-//    private class BPlusTreeIterator implements Iterator<RecordId> {
-//        // TODO(proj2): Add whatever fields and constructors you want here.
-//
-//        private LeafNode currNode;
-//        private Iterator<RecordId> currIter;
-//
-//        public BPlusTreeIterator(BPlusNode node, Optional<DataBox> key) {
-//
-//            this.currNode = node.getLeftmostLeaf();
-//            if (key.isPresent()) {
-//                this.currIter = this.currNode.scanGreaterEqual(key.get());
-//            } else {
-//                this.currIter = this.currNode.scanAll();
-//            }
-//        }
-//
-//        @Override
-//        public boolean hasNext() {
-//            // TODO(proj2): implement
-//            if (this.currIter.hasNext()) {
-//                return true;
-//            } else {
-//                Optional<LeafNode> rightSibling = this.currNode.getRightSibling();
-//                if (rightSibling.isPresent()) {
-//                    this.currNode = rightSibling.get();
-//                    this.currIter = this.currNode.scanAll();
-//                    return hasNext();
-//                }
-//            }
-//            return false;
-//        }
-//
-//        @Override
-//        public RecordId next() {
-//            // TODO(proj2): implement
-//            if (hasNext()) {
-//                return this.currIter.next();
-//            }
-//            throw new NoSuchElementException();
-//        }
-//    }
+     //Iterator ////////////////////////////////////////////////////////////////
     private class BPlusTreeIterator implements Iterator<RecordId> {
-        // TODO(hw2): Add whatever fields and constructors you want here.
+
         private LeafNode currNode;
         private Iterator<RecordId> currIter;
 
+        public BPlusTreeIterator(BPlusNode node, Optional<DataBox> key) {
 
-        public BPlusTreeIterator(BPlusNode node,  Optional<DataBox> key){
             this.currNode = node.getLeftmostLeaf();
-            if (key.isPresent()){
-//                this.currNode = root.get(key.get());
+            if (key.isPresent()) {
                 this.currIter = this.currNode.scanGreaterEqual(key.get());
             } else {
                 this.currIter = this.currNode.scanAll();
@@ -496,36 +450,25 @@ public class BPlusTree {
 
         @Override
         public boolean hasNext() {
-            //throw new UnsupportedOperationException("TODO(hw2): implement");
-            if (this.currIter.hasNext()){
+            if (this.currIter.hasNext()) {
                 return true;
             } else {
-                Optional<LeafNode> rightNode = this.currNode.getRightSibling();
-                if (rightNode.isPresent()){
-                    this.currNode = rightNode.get();
+                Optional<LeafNode> rightSibling = this.currNode.getRightSibling();
+                if (rightSibling.isPresent()) {
+                    this.currNode = rightSibling.get();
                     this.currIter = this.currNode.scanAll();
                     return hasNext();
-                } else {
-                    return false;
                 }
             }
+            return false;
         }
 
         @Override
         public RecordId next() {
-            //throw new UnsupportedOperationException("TODO(hw2): implement");
-            if (this.currIter.hasNext()){
-                return currIter.next();
-            } else {
-                Optional<LeafNode> rightNode = this.currNode.getRightSibling();
-                if (rightNode.isPresent()){
-                    this.currNode = rightNode.get();
-                    this.currIter = this.currNode.scanAll();
-                    return next();
-                } else {
-                    throw new NoSuchElementException();
-                }
+            if (hasNext()) {
+                return this.currIter.next();
             }
+            throw new NoSuchElementException();
         }
     }
 }
