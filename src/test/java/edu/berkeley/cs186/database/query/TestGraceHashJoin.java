@@ -166,6 +166,7 @@ public class TestGraceHashJoin {
                 expectedOutput.add(r1.concat(r2));
             }
 
+            System.out.println(expectedOutput);
             GHJOperator ghj = new GHJOperator(
                     new TestSourceOperator(leftRecords, leftSchema),
                     new TestSourceOperator(rightRecords, rightSchema),
@@ -174,7 +175,10 @@ public class TestGraceHashJoin {
             );
 
             List<Record> output = new ArrayList<>();
-            for (Record record: ghj) output.add(record);
+            for (Record record: ghj) {
+                output.add(record);
+            }
+
 
             assertEquals(1674, output.size());
 
