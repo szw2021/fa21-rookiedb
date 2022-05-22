@@ -64,7 +64,9 @@ public class SortOperator extends QueryOperator {
     }
 
     @Override
-    public boolean materialized() { return true; }
+    public boolean materialized() {
+        return true;
+    }
 
     @Override
     public BacktrackingIterator<Record> backtrackingIterator() {
@@ -92,8 +94,8 @@ public class SortOperator extends QueryOperator {
             list.add(records.next());
         }
         Collections.sort(list, new RecordComparator());
-         Run res = makeRun();
-         res.addAll(list);
+        Run res = makeRun();
+        res.addAll(list);
         return res;
     }
 
@@ -102,7 +104,7 @@ public class SortOperator extends QueryOperator {
      * merging the input runs. You should use a Priority Queue (java.util.PriorityQueue)
      * to determine which record should be should be added to the output run
      * next.
-     *
+     * <p>
      * You are NOT allowed to have more than runs.size() records in your
      * priority queue at a given moment. It is recommended that your Priority
      * Queue hold Pair<Record, Integer> objects where a Pair (r, i) is the
@@ -117,13 +119,14 @@ public class SortOperator extends QueryOperator {
         // TODO(proj3_part1): implement
 
         Run res = makeRun();
-        RecordPairComparator recordPairComparator = new RecordPairComparator();
 
         PriorityQueue<Pair<Record, Integer>> queue = new PriorityQueue<>(new RecordPairComparator());
 
         int size = runs.size();
         ArrayList<Iterator<Record>> iterators = new ArrayList<>();
-        for (Run r : runs) { iterators.add(r.iterator()); }
+        for (Run r : runs) {
+            iterators.add(r.iterator());
+        }
         for (int i = 0; i < size; i++) {
             Iterator<Record> iter = iterators.get(i);
             if (iter.hasNext()) {
