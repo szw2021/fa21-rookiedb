@@ -140,12 +140,12 @@ public class GHJOperator extends JoinOperator {
             if (!hashTable.containsKey(probeJoinValue)) {
                 continue;
             }
-            for (Record probe : hashTable.get(probeJoinValue)) {
+            for (Record buildRecord : hashTable.get(probeJoinValue)) {
                 Record joinRecord;
                 if (!probeFirst) {
-                    joinRecord = probe.concat(probeRecord);
+                    joinRecord = buildRecord.concat(probeRecord);
                 } else {
-                    joinRecord = probeRecord.concat(probe);
+                    joinRecord = probeRecord.concat(buildRecord);
                 }
                 this.joinedRecords.add(joinRecord);
             }
