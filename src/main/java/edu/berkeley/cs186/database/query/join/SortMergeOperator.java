@@ -167,10 +167,6 @@ public class SortMergeOperator extends JoinOperator {
                     rightIterator.markPrev();
                 }
 
-                if (leftRecord == null) {
-                    return null;
-                }
-
                 if (compare(leftRecord, rightRecord) == 0) {
                     nextRecord = leftRecord.concat(rightRecord);
                     //System.out.println(nextRecord);
