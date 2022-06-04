@@ -190,6 +190,8 @@ public class LockContext {
     public LockType getExplicitLockType(TransactionContext transaction) {
         if (transaction == null) return LockType.NL;
         // TODO(proj4_part2): implement
+
+        LockType explicitLockType = getExplicitLockType(transaction);
         return LockType.NL;
     }
 
@@ -213,6 +215,14 @@ public class LockContext {
      */
     private boolean hasSIXAncestor(TransactionContext transaction) {
         // TODO(proj4_part2): implement
+        LockContext travel = parent;
+        while (travel != null) {
+            LockType parentLockType = lockman.getLockType(transaction, travel.getResourceName());
+            if (parentLockType.equals(LockType.SIX)) {
+                return true;
+            }
+            travel = travel.parent;
+        }
         return false;
     }
 
@@ -225,6 +235,15 @@ public class LockContext {
      */
     private List<ResourceName> sisDescendants(TransactionContext transaction) {
         // TODO(proj4_part2): implement
+
+        List<Lock> locks = lockman.getLocks(transaction);
+        List<ResourceName> res = new ArrayList<>();
+        for (Lock l : locks) {
+            if (l.lockType.equals(LockType.S) || l.lockType.equals(LockType.IS)) {
+
+            }
+        }
+
         return new ArrayList<>();
     }
 
